@@ -65,6 +65,7 @@
   
     <label for="writtenBy">Written By:</label>
     <input type="text" id="writtenBy" name="WrittenBy" required>
+    <datalist id="topperNames"></datalist>
   
     <label for="paper">Paper:</label>
     <input type="text" id="paper" name="Paper" required>
@@ -75,10 +76,25 @@
     <label for="subtopicName">Subtopic Name:</label>
     <input type="text" id="subtopicName" name="SubtopicName" required>
 
+
     <label for="answerImages">Answer Images (Ctrl+V to paste):</label>
-    <div id="answerImages" contenteditable="true"></div>
+    <div id="answerImages" contenteditable="true" style="border: 1px solid springgreen;"></div>
   
     <button type="submit">Add Mains Answer</button>
+    <script>
+      // Fetch all topper names and populate the datalist
+      fetch('/topper-names')
+        .then(response => response.json())
+        .then(data => {
+          const datalist = document.getElementById('topperNames');
+          data.forEach(topper => {
+            const option = document.createElement('option');
+            option.value = topper.Name;
+            datalist.appendChild(option);
+          });
+        })
+        .catch(error => console.error(error));
+    </script>
   </form>
   
 

@@ -2,18 +2,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const path = require('path');
+// const path = require('path');
 const { Topper, MainsAnswer } = require('./models/index');
 
-
 const app = express();
-
 
 // middleware
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
-
 
 // database connection
 mongoose.connect(`mongodb+srv://ngawangg:applepie@cluster0.7h0rl9g.mongodb.net/ias?retryWrites=true&w=majority` ,);
@@ -25,17 +22,10 @@ app.get('/admin', (req, res) => {
 });
 
 
-// get the home route
-//app.get('/' , (req,res)=>{
-  //  res.render('Home')
-//})
-
-
 // A route to get the login page
 app.get('/login' , (req,res)=>{
     res.render('login');
 })
-
 
 // this is to check the login route
 app.post('/check',(req,res)=>{
@@ -75,6 +65,7 @@ app.post('/add-mains-answer', async (req, res) => {
 });
 
 
+
 // This routes 
 // User side routes
 app.get('/user/:topicName', async (req, res) => {
@@ -90,6 +81,7 @@ app.get('/user/:topicName', async (req, res) => {
 
 
 
+// get details of topper copy
 app.get('/toppers-copy/:topperName', async (req, res) => {
   try {
     const topperName = req.params.topperName;
@@ -105,36 +97,59 @@ app.get('/toppers-copy/:topperName', async (req, res) => {
   }
 });
 
-
-app.get('/:topperName', async (req, res) => {
+// get the home page with the list of all toppers
+app.get('/', async (req, res) => {
   try {
-    const providedName = req.params.topperName;
-    const formattedName = providedName.replace(/\s/g, '').toLowerCase();
-
-    const topperData = await Topper.findOne({ Name: new RegExp('^' + formattedName, 'i') });
-
-    if (topperData) {
-      // Fetch mains answers for the topper using topperName, not topperData.Name
-      topperData.mainsAnswers = await MainsAnswer.find({ WrittenBy: providedName });
-    }
-
-    res.render('home', { topperData });
+    // Fetch all toppers from the database
+    const allToppers = await Topper.find({});
+    res.render('home', { allToppers });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-  
+
+// get the question and answer  uploaded by a particular topper 
+app.get('/upsc-topper/:topperName', async (req, res) => {
+
+  try {
+    const providedName = req.params.topperName;
+    const formattedName = providedName.replace(/\s/g, '').toLowerCase();
+    const topperData = await Topper.findOne({ Name: new RegExp('^' + formattedName, 'i') });
+    if (topperData) {
+      // Fetch mains answers for the topper using topperName, not topperData.Name
+      topperData.mainsAnswers = await MainsAnswer.find({ WrittenBy: providedName });
+    }
+    res.render('details', { topperData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
+// Example route to handle search
+app.get('/search', async (req, res) => {
+  try {
+    const searchQuery = req.query.search;
+    console.log('Search Query:', searchQuery); // Add this line to log the search query
 
+    // Fetch mains answers based on the search query
+    const searchResults = await MainsAnswer.find({
+      $or: [
+        { Paper: { $regex: new RegExp(searchQuery, 'i') } },
+        { TopicName: { $regex: new RegExp(searchQuery, 'i') } },
+        { SubtopicName: { $regex: new RegExp(searchQuery, 'i') } }
+      ]
+    });
 
-
-
-
-
-
+    res.render('results', { searchResults, searchQuery });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 

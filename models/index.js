@@ -77,9 +77,17 @@ const mainsAnswerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  AnswerImages: {
-    type: [String], // Assuming image URLs will be stored as strings
-  },
+  AnswerImages: [
+    {
+      imageUrl: {
+        type: String,
+        required: true,
+      },
+      description: {
+        type: String,
+      },
+    },
+  ],
   WrittenBy: {
     type: String,
     required: true,
@@ -96,6 +104,7 @@ const mainsAnswerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
 });
 
 const Topper = mongoose.model('Topper', topperSchema);

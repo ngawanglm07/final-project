@@ -1,0 +1,24 @@
+
+  <%- include("partials/header"); -%>
+
+  <h2>Search Results for "<%= searchQuery %>"</h2>
+
+  <!-- Display Mains Answers -->
+  <% if (searchResults && searchResults.length > 0) { %>
+    <ul>
+      <% searchResults.forEach(answer => { %>
+        <li>
+          <p>Question <%= answer.QuestionNumber %>:</p>
+          <p><%= answer.AnswerText %></p>
+          <!-- Add logic to display answer images if any -->
+        </li>
+      <% }); %>
+    </ul>
+  <% } else { %>
+    <p>No matching results found.</p>
+  <% } %>
+
+  <%- include("partials/footer"); -%>
+
+
+
