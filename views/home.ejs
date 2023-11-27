@@ -1,0 +1,26 @@
+<%- include("partials/header"); -%>
+
+<% if (topperData) { %>
+    <h1><%= topperData.Name %></h1>
+
+    <% if (topperData.mainsAnswers && topperData.mainsAnswers.length > 0) { %>
+      <h2>Mains Answers:</h2>
+      <ul>
+        <% topperData.mainsAnswers.forEach(answer => { %>
+          <li>
+            <p>Question <%= answer.QuestionNumber %>:</p>
+            <p><%= answer.AnswerText %></p>
+            <!-- Add logic to display answer images if any -->
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No Mains Answers found for <%= topperData.Name %>.</p>
+    <% } %>
+
+  <% } else { %>
+    <p>Topper not found.</p>
+  <% } %>
+
+  
+<%- include("partials/footer"); -%>

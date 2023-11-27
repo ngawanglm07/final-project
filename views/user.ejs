@@ -1,0 +1,18 @@
+<%- include("partials/header"); -%>
+
+  <h1>User Page - <%= topicName %></h1>
+  <% mainsAnswers.forEach(answer => { %>
+    <div class="answer">
+      <h2>Question <%= answer.QuestionNumber %></h2>
+      <p><%= answer.AnswerText %></p>
+      <!-- Add logic to display answer images if any -->
+      <% if (answer.AnswerImages && answer.AnswerImages.length > 0) { %>
+        <div class="answer-images">
+          <% answer.AnswerImages.forEach(image => { %>
+            <img src="<%= image %>" alt="Answer Image">
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  <% }); %>
+  <%- include("partials/footer"); -%>

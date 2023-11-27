@@ -1,0 +1,86 @@
+<%- include("partials/header"); -%>
+<!-- views/admin.ejs -->
+
+  <h1>Add Topper</h1>
+  <form action="/add-topper" method="post">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="Name" required>
+
+    <label for="rank">Rank:</label>
+    <input type="number" id="rank" name="Rank" required>
+
+    <label for="year">Year:</label>
+    <input type="number" id="year" name="Year" required>
+
+    <label for="gs1Marks">GS1 Marks:</label>
+    <input type="number" id="gs1Marks" name="GS1Marks" required>
+
+    <label for="gs2Marks">GS2 Marks:</label>
+    <input type="number" id="gs2Marks" name="GS2Marks" required>
+
+    <label for="gs3Marks">GS3 Marks:</label>
+    <input type="number" id="gs3Marks" name="GS3Marks" required>
+
+    <label for="gs4Marks">GS4 Marks:</label>
+    <input type="number" id="gs4Marks" name="GS4Marks" required>
+
+    <label for="essayMarks">Essay Marks:</label>
+    <input type="number" id="essayMarks" name="EssayMarks" required>
+
+    <label for="prelimsScoreGS">Prelims Score GS:</label>
+    <input type="number" id="prelimsScoreGS" name="PrelimsScoreGS" required>
+
+    <label for="prelimsScoreCSAT">Prelims Score CSAT:</label>
+    <input type="number" id="prelimsScoreCSAT" name="PrelimsScoreCSAT" required>
+
+    <label for="optionalSubject">Optional Subject:</label>
+    <input type="text" id="optionalSubject" name="OptionalSubject" required>
+
+    <label for="optional1Marks">Optional 1 Marks:</label>
+    <input type="number" id="optional1Marks" name="Optional1Marks" required>
+
+    <label for="optional2Marks">Optional 2 Marks:</label>
+    <input type="number" id="optional2Marks" name="Optional2Marks" required>
+
+    <label for="remarks">Remarks:</label>
+    <textarea id="remarks" name="Remarks" required></textarea>
+
+    <button type="submit">Add Topper</button>
+  </form>
+
+  <h1>Add Mains Answer</h1>
+  <form action="/add-mains-answer" method="post">
+    <label for="testCode">Test Code:</label>
+    <input type="text" id="testCode" name="TestCode" required>
+  
+    <label for="questionNumber">Question Number:</label>
+    <input type="number" id="questionNumber" name="QuestionNumber" required>
+  
+    <label for="questionText">Question Text:</label>
+    <textarea id="questionText" name="QuestionText" required></textarea>
+  
+    <label for="answerText">Answer Text:</label>
+    <textarea id="answerText" name="AnswerText" required></textarea>
+  
+  
+    <label for="writtenBy">Written By:</label>
+    <input type="text" id="writtenBy" name="WrittenBy" required>
+  
+    <label for="paper">Paper:</label>
+    <input type="text" id="paper" name="Paper" required>
+  
+    <label for="topicName">Topic Name:</label>
+    <input type="text" id="topicName" name="TopicName" required>
+  
+    <label for="subtopicName">Subtopic Name:</label>
+    <input type="text" id="subtopicName" name="SubtopicName" required>
+
+    <label for="answerImages">Answer Images (Ctrl+V to paste):</label>
+    <div id="answerImages" contenteditable="true"></div>
+  
+    <button type="submit">Add Mains Answer</button>
+  </form>
+  
+
+
+<%- include("partials/footer"); -%>
