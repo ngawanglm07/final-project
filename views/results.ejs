@@ -1,8 +1,7 @@
+<%- include("partials/header"); -%>
 
-  <%- include("partials/header"); -%>
 
   <h2>Search Results for "<%= searchQuery %>"</h2>
-
   <!-- Display Mains Answers -->
   <% if (searchResults && searchResults.length > 0) { %>
     <ul>
@@ -18,6 +17,8 @@
     <p>No matching results found.</p>
   <% } %>
 
+
+  
   <%- include("partials/footer"); -%>
 
 

@@ -165,6 +165,17 @@ app.get('/topper-names', async (req, res) => {
 });
 
 
+app.get('/topic' , async(req,res)=>{
+  try{
+  const allTopics = await MainsAnswer.find({} , 'TopicName');
+  res.json(allTopics)
+  } catch {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+})
+
+
 
 
 const PORT = process.env.PORT || 3000;

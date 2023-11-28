@@ -66,13 +66,15 @@
   <input type="text" id="writtenBy" name="WrittenBy" required autocomplete="off" list="topperNames">
   <datalist id="topperNames"></datalist>
 
+  <label for="topicName">Topic Name:</label>
+  <input type="text" id="topicName" name="TopicName" require autocomplete="off" list="topicNames">
+  <datalist id="topicNames"></datalist>
+
    
   
     <label for="paper">Paper:</label>
     <input type="text" id="paper" name="Paper" required>
   
-    <label for="topicName">Topic Name:</label>
-    <input type="text" id="topicName" name="TopicName" required>
   
     <label for="subtopicName">Subtopic Name:</label>
     <input type="text" id="subtopicName" name="SubtopicName" required>
@@ -120,6 +122,41 @@
   
     // Attach the input event listener to the 'Written By' input field
     document.getElementById('writtenBy').addEventListener('input', updateTopperNamesList);
+
+    function updateTopicNamesList() {
+      var topicNameInput = document.getElementById('topicName');
+      var datalist = document.getElementById('topicNames');
+      var inputText = topicNameInput.value.trim(); // Trim whitespace
+  
+      // Use Axios to fetch topper names only if the inputText is not empty
+      if (inputText) {
+        axios.get('/topic', {
+            params: {
+              query: inputText
+            }
+          })
+          .then(function (response) {
+            // Clear existing options
+            datalist.innerHTML = '';
+  
+            // Populate datalist with new options
+            response.data.forEach(function (topic) {
+              var option = document.createElement('option');
+              option.value = topic.TopicName;
+              datalist.appendChild(option);
+            });
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      } else {
+        // Clear datalist if the input is empty
+        datalist.innerHTML = '';
+      }
+    }
+
+    document.getElementById('topicName').addEventListener('input', updateTopicNamesList);
+  
   </script>
 
 <%- include("partials/footer"); -%> 
