@@ -1,5 +1,5 @@
 <%- include("partials/header"); -%>
-<!-- views/admin.ejs -->
+
 
   <h1>Add Topper</h1>
   <form action="/add-topper" method="post">
@@ -62,10 +62,11 @@
     <label for="answerText">Answer Text:</label>
     <textarea id="answerText" name="AnswerText" required></textarea>
   
-  
     <label for="writtenBy">Written By:</label>
-    <input type="text" id="writtenBy" name="WrittenBy" required>
-    <datalist id="topperNames"></datalist>
+  <input type="text" id="writtenBy" name="WrittenBy" required autocomplete="off" list="topperNames">
+  <datalist id="topperNames"></datalist>
+
+   
   
     <label for="paper">Paper:</label>
     <input type="text" id="paper" name="Paper" required>
@@ -76,27 +77,49 @@
     <label for="subtopicName">Subtopic Name:</label>
     <input type="text" id="subtopicName" name="SubtopicName" required>
 
-
+<!-- 
     <label for="answerImages">Answer Images (Ctrl+V to paste):</label>
-    <div id="answerImages" contenteditable="true" style="border: 1px solid springgreen;"></div>
+    <div id="answerImages" contenteditable="true" style="border: 1px solid springgreen;"></div> -->
   
     <button type="submit">Add Mains Answer</button>
-    <script>
-      // Fetch all topper names and populate the datalist
-      fetch('/topper-names')
-        .then(response => response.json())
-        .then(data => {
-          const datalist = document.getElementById('topperNames');
-          data.forEach(topper => {
-            const option = document.createElement('option');
-            option.value = topper.Name;
-            datalist.appendChild(option);
-          });
-        })
-        .catch(error => console.error(error));
-    </script>
-  </form>
+   <!-- ... (other HTML code) -->
+
+   <script>
+    // Define a function to fetch and update the datalist options
+    function updateTopperNamesList() {
+      var writtenByInput = document.getElementById('writtenBy');
+      var datalist = document.getElementById('topperNames');
+      var inputText = writtenByInput.value.trim(); // Trim whitespace
   
+      // Use Axios to fetch topper names only if the inputText is not empty
+      if (inputText) {
+        axios.get('/topper-names', {
+            params: {
+              query: inputText
+            }
+          })
+          .then(function (response) {
+            // Clear existing options
+            datalist.innerHTML = '';
+  
+            // Populate datalist with new options
+            response.data.forEach(function (topper) {
+              var option = document.createElement('option');
+              option.value = topper.Name;
+              datalist.appendChild(option);
+            });
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      } else {
+        // Clear datalist if the input is empty
+        datalist.innerHTML = '';
+      }
+    }
+  
+    // Attach the input event listener to the 'Written By' input field
+    document.getElementById('writtenBy').addEventListener('input', updateTopperNamesList);
+  </script>
 
-
-<%- include("partials/footer"); -%>
+<%- include("partials/footer"); -%> 
