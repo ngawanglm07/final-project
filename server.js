@@ -176,6 +176,17 @@ app.get('/topic' , async(req,res)=>{
 })
 
 
+app.get('/subject' , async(req,res)=>{
+  try{
+  const allSubject = await MainsAnswer.find({} , 'Paper');
+  res.json(allSubject)
+  } catch {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+})
+
+
 
 
 const PORT = process.env.PORT || 3000;

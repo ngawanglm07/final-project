@@ -62,19 +62,19 @@
     <label for="answerText">Answer Text:</label>
     <textarea id="answerText" name="AnswerText" required></textarea>
   
-    <label for="writtenBy">Written By:</label>
+  <label for="writtenBy">Written By:</label>
   <input type="text" id="writtenBy" name="WrittenBy" required autocomplete="off" list="topperNames">
-  <datalist id="topperNames"></datalist>
+  <datalist id="topperNames"> </datalist>
+
+  <label for="paper">Paper:</label>
+  <input type="text" id="paper" name="Paper" required autocomplete="off" list="paperNames">
+  <datalist id="paperNames"> </datalist>
+  
 
   <label for="topicName">Topic Name:</label>
   <input type="text" id="topicName" name="TopicName" require autocomplete="off" list="topicNames">
-  <datalist id="topicNames"></datalist>
+ 
 
-   
-  
-    <label for="paper">Paper:</label>
-    <input type="text" id="paper" name="Paper" required>
-  
   
     <label for="subtopicName">Subtopic Name:</label>
     <input type="text" id="subtopicName" name="SubtopicName" required>
@@ -123,14 +123,14 @@
     // Attach the input event listener to the 'Written By' input field
     document.getElementById('writtenBy').addEventListener('input', updateTopperNamesList);
 
-    function updateTopicNamesList() {
-      var topicNameInput = document.getElementById('topicName');
-      var datalist = document.getElementById('topicNames');
-      var inputText = topicNameInput.value.trim(); // Trim whitespace
+    function updatePaperNamesList() {
+      var paperName = document.getElementById('paper');
+      var datalist = document.getElementById('paperNames');
+      var inputText = paperName.value.trim(); // Trim whitespace
   
       // Use Axios to fetch topper names only if the inputText is not empty
       if (inputText) {
-        axios.get('/topic', {
+        axios.get('/subject', {
             params: {
               query: inputText
             }
@@ -140,9 +140,9 @@
             datalist.innerHTML = '';
   
             // Populate datalist with new options
-            response.data.forEach(function (topic) {
+            response.data.forEach(function (subject) {
               var option = document.createElement('option');
-              option.value = topic.TopicName;
+              option.value = subject.Paper;
               datalist.appendChild(option);
             });
           })
@@ -155,7 +155,7 @@
       }
     }
 
-    document.getElementById('topicName').addEventListener('input', updateTopicNamesList);
+    document.getElementById('paper').addEventListener('input', updatePaperNamesList);
   
   </script>
 
