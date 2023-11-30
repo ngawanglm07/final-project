@@ -49,7 +49,9 @@
   </form>
 
   <h1>Add Mains Answer</h1>
-  <form action="/add-mains-answer" method="post">
+
+
+  <form action="/add-mains-answer" method="post" enctype="multipart/form-data">
     <label for="testCode">Test Code:</label>
     <input type="text" id="testCode" name="TestCode" required>
   
@@ -61,6 +63,17 @@
   
     <label for="answerText">Answer Text:</label>
     <textarea id="answerText" name="AnswerText" required></textarea>
+
+
+    <label for="image1">Image 1:</label>
+    <input type="file" id="image1" name="image1" accept="image/*">
+  
+    <label for="image2">Image 2:</label>
+    <input type="file" id="image2" name="image2" accept="image/*">
+    
+  
+    <label for="image3">Image 3:</label>
+    <input type="file" id="image3" name="image3" accept="image/*">
   
   <label for="writtenBy">Written By:</label>
   <input type="text" id="writtenBy" name="WrittenBy" required autocomplete="off" list="topperNames">
@@ -71,18 +84,20 @@
   <datalist id="paperNames"> </datalist>
   
 
+
   <label for="topicName">Topic Name:</label>
-  <input type="text" id="topicName" name="TopicName" require autocomplete="off" list="topicNames">
- 
+  <input type="text" id="topicName" name="TopicName" required autocomplete="on" list="topicNames">
+  <datalist id="topicNames">
+  </datalist>
 
   
     <label for="subtopicName">Subtopic Name:</label>
-    <input type="text" id="subtopicName" name="SubtopicName" required>
+    <input type="text" id="subtopicName" name="SubtopicName" required  autocomplete="on" list="subtopicNames">
+    <datalist id="subtopicNames">
+    </datalist>
 
-<!-- 
-    <label for="answerImages">Answer Images (Ctrl+V to paste):</label>
-    <div id="answerImages" contenteditable="true" style="border: 1px solid springgreen;"></div> -->
-  
+
+
     <button type="submit">Add Mains Answer</button>
    <!-- ... (other HTML code) -->
 
@@ -122,7 +137,7 @@
   
     // Attach the input event listener to the 'Written By' input field
     document.getElementById('writtenBy').addEventListener('input', updateTopperNamesList);
-
+  
     function updatePaperNamesList() {
       var paperName = document.getElementById('paper');
       var datalist = document.getElementById('paperNames');
@@ -154,9 +169,85 @@
         datalist.innerHTML = '';
       }
     }
-
+  
     document.getElementById('paper').addEventListener('input', updatePaperNamesList);
   
+    
+    function updateTopicNamesList() {
+  var paperInput = document.getElementById('paper');
+  var topicInput = document.getElementById('topicName');
+  var subtopicInput = document.getElementById('subtopicName');
+  var topicDatalist = document.getElementById('topicNames');
+  var subtopicDatalist = document.getElementById('subtopicNames');  // Updated line
+
+  var paperText = paperInput.value.trim();
+
+  // Use Axios to fetch topics based on the selected paper
+  if (paperText) {
+    axios.get('/topic', {
+        params: {
+          query: paperText
+        }
+      })
+      .then(function (response) {
+        // Clear existing options
+        topicDatalist.innerHTML = '';
+
+        // Populate topic input with new options
+        response.data.forEach(function (topic) {
+          var option = document.createElement('option');
+          option.value = topic.TopicName;
+          topicDatalist.appendChild(option);
+        });
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  } else {
+    // Clear topic input if the paper input is empty
+    topicDatalist.innerHTML = '';
+  }
+
+  // Additionally, you can fetch subtopics based on the selected paper and topic
+  if (paperText) {
+    axios.get('/subtopic', {
+        params: {
+          paper: paperText,
+          topic: topicInput.value.trim()
+        }
+      })
+      .then(function (response) {
+        // Clear existing options
+        subtopicDatalist.innerHTML = '';
+
+        // Populate subtopic input with new options
+        response.data.forEach(function (subtopic) {
+          var option = document.createElement('option');
+          option.value = subtopic.SubtopicName;
+          subtopicDatalist.appendChild(option);
+        });
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  } else {
+    // Clear subtopic input if the paper or topic input is empty
+    subtopicDatalist.innerHTML = '';
+  }
+}
+
+// Attach the input event listener to the 'Topic' input field
+document.getElementById('topicName').addEventListener('input', updateTopicNamesList);
+
+
+// Attach the input event listener to the 'Topic' input field
+
+    // Attach the input event listener to the 'Paper' input field
+    document.getElementById('paper').addEventListener('input', updateTopicNamesList);
+  
+    // Attach the input event listener to the 'Topic' input field
+  
   </script>
+  
 
 <%- include("partials/footer"); -%> 

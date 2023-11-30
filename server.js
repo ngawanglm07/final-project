@@ -3,19 +3,41 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Topper, MainsAnswer } = require('./models/index');
 const bodyParser = require('body-parser')
-
-
-
-
+const multer = require('multer'); // Add this line
+const sanitizeFilename = require('sanitize-filename');
 const app = express();
+const path = require('path');
+const Grid = require('gridfs-stream');
+const fs = require('fs');
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // middleware
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('uploads'));
+
 
 // database connection
 mongoose.connect(`mongodb+srv://ngawangg:applepie@cluster0.7h0rl9g.mongodb.net/ias?retryWrites=true&w=majority` ,);
+
+const conn = mongoose.connection;
+let gfs;
+conn.once('open', () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('mainsanswers');
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).fields([
+  { name: 'image1', maxCount: 1 },
+  { name: 'image2', maxCount: 1 },
+  { name: 'image3', maxCount: 1 },
+]);
+
 
 
 // Admin side routes
@@ -29,7 +51,6 @@ app.get('/login' , (req,res)=>{
     res.render('login');
 })
 
-
 // get the home page with the list of all toppers
 app.get('/', async (req, res) => {
   try {
@@ -42,7 +63,6 @@ app.get('/', async (req, res) => {
   }
 });
 
-
 // this is to check the login route
 app.post('/check',(req,res)=>{
     const password = req.body.password;
@@ -53,7 +73,6 @@ app.post('/check',(req,res)=>{
         res.render('login')
     }
 })
-
 
 // comming from admin.ejs this is used to add toppers in mongoDB database the schema is in models
 app.post('/add-topper', async (req, res) => {
@@ -67,16 +86,46 @@ app.post('/add-topper', async (req, res) => {
   }
 });
 
-
-// comming from admin.ejs this is used to add mains questions and answer in mongoDB database the schema is in models
-app.post('/add-mains-answer', async (req, res) => {
+app.post('/add-mains-answer', upload, async (req, res) => {
   try {
-    const newMainsAnswer = new MainsAnswer(req.body);
-    await newMainsAnswer.save();
-    res.redirect('/admin');
+    console.log('Request Body:', req.body);
+    console.log('Request Files:', req.files);
+
+    if (!req.files) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+
+    const { TestCode, QuestionNumber, QuestionText, AnswerText, WrittenBy, Paper, TopicName, SubtopicName } = req.body;
+
+    const images = [];
+    for (let i = 1; i <= 3; i++) {
+      const key = `image${i}`;
+      if (req.files[key]) {
+        images.push({
+          imageUrl: req.files[key][0].originalname,  // Using originalname here
+          description: req.body[`${key}Description`],
+        });
+      }
+    }
+
+    const mainsAnswer = new MainsAnswer({
+      TestCode,
+      QuestionNumber,
+      QuestionText,
+      AnswerText,
+      AnswerImages: images,
+      WrittenBy,
+      Paper,
+      TopicName,
+      SubtopicName,
+    });
+
+    const savedMainsAnswer = await mainsAnswer.save();
+    
+    res.redirect('/admin')
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -102,7 +151,6 @@ app.get('/search', async (req, res) => {
   }
 });
 
-
 // get the question and answer  uploaded by a particular topper 
 app.get('/upsc-topper/:topperName', async (req, res) => {
 
@@ -121,36 +169,33 @@ app.get('/upsc-topper/:topperName', async (req, res) => {
   }
 });
 
-
 // User side routes
-// app.get('/user/:topicName', async (req, res) => {
-//   try {
-//     const topicName = req.params.topicName;
-//     const mainsAnswers = await MainsAnswer.find({ TopicName: topicName });
-//     res.render('user', { topicName, mainsAnswers });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-
-
+app.get('/user/:topicName', async (req, res) => {
+  try {
+    const topicName = req.params.topicName;
+    const mainsAnswers = await MainsAnswer.find({ TopicName: topicName });
+    res.render('user', { topicName, mainsAnswers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // get details of topper copy
-// app.get('/toppers-copy/:topperName', async (req, res) => {
-//   try {
-//     const topperName = req.params.topperName;
-//     console.log('Querying for WrittenBy:', topperName);
+app.get('/toppers-copy/:topperName', async (req, res) => {
+  try {
+    const topperName = req.params.topperName;
+    console.log('Querying for WrittenBy:', topperName);
 
-//     const mainsAnswers = await MainsAnswer.find({ WrittenBy: topperName });
-//     console.log('Found Mains Answers:', mainsAnswers);
+    const mainsAnswers = await MainsAnswer.find({ WrittenBy: topperName });
+    console.log('Found Mains Answers:', mainsAnswers);
 
-//     res.json(mainsAnswers); // Sending the response as JSON for better handling
-//   } catch (error) {
-//     console.error('Error:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.json(mainsAnswers); // Sending the response as JSON for better handling
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // Add this route to fetch all topper names
 app.get('/topper-names', async (req, res) => {
@@ -185,6 +230,57 @@ app.get('/subject' , async(req,res)=>{
     res.status(500).send('Internal Server Error');
   }
 })
+
+// Add this route to fetch subtopics based on the selected paper and topic
+app.get('/subtopic', async (req, res) => {
+  try {
+    const paperQuery = req.query.paper;
+    const topicQuery = req.query.topic;
+
+    // Fetch subtopics based on the provided paper and topic
+    const subtopics = await MainsAnswer.find({
+      Paper: { $regex: new RegExp(paperQuery, 'i') },
+      TopicName: { $regex: new RegExp(topicQuery, 'i') }
+    }, 'SubtopicName');
+
+    res.json(subtopics);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
+app.get('/uploads/:filename', async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    console.log('Requested Filename:', filename);
+
+   
+    // Change this line to the correct path
+
+const directoryContents = fs.readdirSync(path.join(__dirname, 'uploads'), 'utf8').map(file => file.toLowerCase());
+
+    console.log('Uploads Directory Contents:', directoryContents);
+
+    const file = await gfs.files.findOne({ filename });
+    console.log('Found File:', file);
+
+    if (!file) {
+      return res.status(404).send('File not found');
+    }
+
+    const readStream = gfs.createReadStream(file.filename);
+    readStream.pipe(res);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
 
 
 
