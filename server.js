@@ -4,11 +4,10 @@ const mongoose = require('mongoose');
 const { Topper, MainsAnswer } = require('./models/index');
 const bodyParser = require('body-parser')
 const multer = require('multer'); // Add this line
-const sanitizeFilename = require('sanitize-filename');
-const app = express();
 const path = require('path');
-const Grid = require('gridfs-stream');
-const fs = require('fs');
+
+const app = express();
+
 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -24,19 +23,28 @@ app.use(express.static('uploads'));
 // database connection
 mongoose.connect(`mongodb+srv://ngawangg:applepie@cluster0.7h0rl9g.mongodb.net/ias?retryWrites=true&w=majority` ,);
 
-const conn = mongoose.connection;
-let gfs;
-conn.once('open', () => {
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('mainsanswers');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
 });
 
-const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).fields([
   { name: 'image1', maxCount: 1 },
   { name: 'image2', maxCount: 1 },
   { name: 'image3', maxCount: 1 },
 ]);
+
+
+// const storage = multer.memoryStorage();
+// const upload = multer({ storage: storage }).fields([
+//   { name: 'image1', maxCount: 1 },
+//   { name: 'image2', maxCount: 1 },
+//   { name: 'image3', maxCount: 1 },
+// ]);
 
 
 
@@ -252,32 +260,7 @@ app.get('/subtopic', async (req, res) => {
 
 
 
-app.get('/uploads/:filename', async (req, res) => {
-  try {
-    const filename = req.params.filename;
-    console.log('Requested Filename:', filename);
 
-   
-    // Change this line to the correct path
-
-const directoryContents = fs.readdirSync(path.join(__dirname, 'uploads'), 'utf8').map(file => file.toLowerCase());
-
-    console.log('Uploads Directory Contents:', directoryContents);
-
-    const file = await gfs.files.findOne({ filename });
-    console.log('Found File:', file);
-
-    if (!file) {
-      return res.status(404).send('File not found');
-    }
-
-    const readStream = gfs.createReadStream(file.filename);
-    readStream.pipe(res);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 
 

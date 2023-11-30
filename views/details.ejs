@@ -12,21 +12,20 @@
           <p><%= answer.AnswerText %></p>
 
           <!-- Loop through the images and display them -->
-          <% if (answer.AnswerImages && answer.AnswerImages.length > 0) { %>
-            <h3>Answer Images:</h3>
-            <ul>
-              <% answer.AnswerImages.forEach(image => { %>
-                <li>
-                
-                  <img src="/uploads/<%= image.imageUrl %>" alt="<%= image.description %>">
-
-
-
-
-                </li>
-              <% }); %>
-            </ul>
-          <% } %>
+         <!-- Display images for each mainsAnswer -->
+     <!-- Inside the loop for mainsAnswers -->
+<% if (answer.AnswerImages && answer.AnswerImages.length > 0) { %>
+  <h3>Images:</h3>
+  <ul>
+    <% answer.AnswerImages.forEach(image => { %>
+      <li>
+        <img src="/uploads/<%= image.imageUrl %>" alt="<%= image.description %>">
+      </li>
+    <% }); %>
+  </ul>
+<% } else { %>
+  <p>No images for this answer.</p>
+<% } %>
 
         </li>
       <% }); %>
